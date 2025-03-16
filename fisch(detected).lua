@@ -2,9 +2,10 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtl
 local window = library:Window("Ryxzen - FISCH | Main TAB")
 
 game.StarterGui:SetCore("SendNotification", {Title="WARNING"; Text="THIS IS DETECTED"; Duration=5;})
+game.StarterGui:SetCore("SendNotification", {Title="WARNING"; Text="P to toggle ui"; Duration=5;})
 
 -- Auto Farm Button
-window:Button("Auto Fish", function()
+window:Button("Auto Farm", function()
     local Players = game:GetService('Players')
     local CoreGui = game:GetService('StarterGui')
     local GuiService = game:GetService('GuiService')
@@ -195,3 +196,5 @@ window2:Box("JumpPower", function(text, focuslost)
    game.Players.LocalPlayer.Character.Humanoid.JumpPower = text
    end
 end)
+
+library:Keybind("P")
