@@ -1,6 +1,8 @@
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtle-Brand/Turtle-Lib/main/source.lua"))()
 local window = library:Window("Ryxzen - FISCH | Main TAB")
 
+game.StarterGui:SetCore("SendNotification", {Title="WARNING"; Text="THIS IS DETECTED"; Duration=5;})
+
 -- Auto Farm Button
 window:Button("Auto Farm", function()
     local Players = game:GetService('Players')
