@@ -11,43 +11,9 @@ local roles
 
 -- Variable to track if teleportation is enabled
 local teleportEnabled = false
--- Variable to track if ESP is enabled
-local espEnabled = false
 -- Variable to track if GodMode is enabled
 local godModeEnabled = false
 
--- Function to apply highlight to a character
-local function applyHighlight(player)
-    if player.Character then
-        -- Remove existing highlight
-        if player.Character:FindFirstChild("Highlight") then
-            player.Character.Highlight:Destroy()
-        end
-
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "Highlight"
-        highlight.Parent = player.Character
-        highlight.FillColor = Color3.fromRGB(255, 255, 255) -- White highlight
-        highlight.OutlineColor = Color3.fromRGB(0, 0, 0)    -- Black outline
-    end
-end
-
--- Function to highlight all players
-local function highlightAllPlayers()
-    for _, p in pairs(Players:GetPlayers()) do
-        applyHighlight(p)
-    end
-end
-
--- Apply highlights on startup
-highlightAllPlayers()
-
--- Apply highlight to new players when they join
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
-        applyHighlight(player)
-    end)
-end)
 
 -- Variable to track if a teleport is in progress
 local isTeleporting = false
@@ -158,7 +124,14 @@ function GodMode()
     end
 end
 
-local window = library:Window("Ryxzen - MM2 | MAIN WINDOW")
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "WARNING", -- Required
+	Text = "PRESS P TO TOGGLE UI", -- Required
+	Icon = "rbxassetid://1234567890" -- Optional
+})
+
+
+local window = library:Window("Ryxzen - MM2 | MAIN")
 
 window:Toggle("Auto Farm Coin", false, function(bool)
     teleportEnabled = bool
@@ -171,15 +144,28 @@ window:Toggle("God Mode (Reset After Round)", false, function(bool)
     end
 end)
 
-window:Toggle("Enabled ESP", false, function(bool)
+local window2 = library:Window("Ryxzen - MM2 | VISUAL")
+
+window2:Toggle("Enabled ESP", false, function(bool)
     ESP.Enabled = bool
 end)
 
-window:Toggle("BOX", false, function(bool)
+window2:Toggle("BOX", false, function(bool)
     ESP.ShowBox = bool
 	ESP.BoxType = "Corner Box Esp";
 end)
 
+window2:Toggle("NAME", false, function(bool)
+    ESP.ShowName = bool
+end)
+
+window2:Toggle("TRACER", false, function(bool)
+    ESP.ShowTracer = bool
+end)
+
+
 window:Button("Rejoin", function()
     TeleportService:Teleport(game.PlaceId, player)
 end)
+
+library:Keybind("P")
