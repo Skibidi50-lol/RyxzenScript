@@ -4,7 +4,7 @@ local window = library:Window("Ryxzen - FISCH | Main TAB")
 game.StarterGui:SetCore("SendNotification", {Title="WARNING"; Text="THIS IS DETECTED"; Duration=5;})
 
 -- Auto Farm Button
-window:Button("Auto Farm", function()
+window:Button("Auto Fish", function()
     local Players = game:GetService('Players')
     local CoreGui = game:GetService('StarterGui')
     local GuiService = game:GetService('GuiService')
