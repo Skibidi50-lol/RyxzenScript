@@ -163,6 +163,19 @@ window2:Toggle("TRACER", false, function(bool)
     ESP.ShowTracer = bool
 end)
 
+local window3 = library:Window("Ryxzen - MM2 | PLAYER")
+window3:Box("Walkspeed", function(text, focuslost)
+   if focuslost then
+   game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = text
+   end
+end)
+
+window3:Box("JumpPower", function(text, focuslost)
+   if focuslost then
+   game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = text
+   end
+end)
+
 
 window:Button("Rejoin", function()
     TeleportService:Teleport(game.PlaceId, player)
