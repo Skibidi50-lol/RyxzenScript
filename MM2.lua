@@ -1,5 +1,8 @@
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtle-Brand/Turtle-Lib/main/source.lua"))()
+--//Modules
 local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/linemaster2/esp-library/main/library.lua"))();
+local triggerbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/Stratxgy/Roblox-Lua-Triggerbot/refs/heads/main/Triggerbot.lua"))()
+--//Library
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtle-Brand/Turtle-Lib/main/source.lua"))()
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -135,6 +138,7 @@ local window = library:Window("Ryxzen - MM2 | MAIN")
 
 window:Toggle("Auto Farm Coin", false, function(bool)
     teleportEnabled = bool
+    teleportEnabled = bool
 end)
 
 window:Toggle("God Mode (Reset After Round)", false, function(bool)
@@ -176,6 +180,15 @@ window3:Box("JumpPower", function(text, focuslost)
    end
 end)
 
+local window4 = library:Window("Ryxzen - MM2 | AIM")
+window4:Button("TriggerBot", function()
+   game.StarterGui:SetCore("SendNotification", {Title="TriggerBot"; Text="Press t to enable or disable triggerbot"; Duration=5;})
+   getgenv().triggerbot.load()
+end)
+
+window4:Slider("TriggerBot Delay",0.1,2,1, function(value)
+   getgenv().triggerbot.Settings.clickDelay = value
+end)
 
 window:Button("Rejoin", function()
     TeleportService:Teleport(game.PlaceId, player)
