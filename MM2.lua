@@ -1,25 +1,32 @@
---//Modules
-local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/linemaster2/esp-library/main/library.lua"))();
-local triggerbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/Stratxgy/Roblox-Lua-Triggerbot/refs/heads/main/Triggerbot.lua"))()
---//Library
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtle-Brand/Turtle-Lib/main/source.lua"))()
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local roles
 
+-- Infinite Jump
+local InfiniteJumpEnabled = false -- Default off
+
+UserInputService.JumpRequest:Connect(function()
+	if InfiniteJumpEnabled then
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+
 -- Variable to track if teleportation is enabled
 local teleportEnabled = false
+-- Variable to track if ESP is enabled
+local espEnabled = false
 -- Variable to track if GodMode is enabled
 local godModeEnabled = false
-
-
--- Variable to track if a teleport is in progress
-local isTeleporting = false
 
 -- Function to find the CoinContainer
 local function findCoinContainer()
@@ -35,10 +42,13 @@ end
 -- Function to find the nearest coin within a certain radius
 local function findNearestCoin(radius)
     local coinContainer = findCoinContainer()
-    if not coinContainer then return nil end
+    if not coinContainer then
+        print("CoinContainer not found")
+        return nil
+    end
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local nearestCoin, nearestDistance = nil, radius
-
+    local nearestCoin = nil
+    local nearestDistance = radius
     for _, coin in pairs(coinContainer:GetChildren()) do
         local distance = (coin.Position - humanoidRootPart.Position).Magnitude
         if distance < nearestDistance then
@@ -52,37 +62,46 @@ end
 -- Function to teleport to a coin
 local function teleportToCoin(coin)
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out) -- Reduced duration to 0.1 seconds
     local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = coin.CFrame})
     tween:Play()
     return tween
 end
 
--- Function to teleport to a nearby or random coin
+-- Variable to track if a teleport is in progress
+local isTeleporting = false
+
+-- Function to teleport to a nearby coin or a random coin
 local function teleportToNearbyOrRandomCoin()
     if not teleportEnabled or isTeleporting then return end
-    local nearbyRadius = 50
+    local nearbyRadius = 50 -- Adjust this value to change the "nearby" distance
     local nearbyCoin = findNearestCoin(nearbyRadius)
-
     if nearbyCoin then
+        print("Teleporting to nearby coin")
         isTeleporting = true
         local tween = teleportToCoin(nearbyCoin)
         tween.Completed:Connect(function()
             isTeleporting = false
-            teleportToNearbyOrRandomCoin()
+            teleportToNearbyOrRandomCoin() -- Immediately move to the next coin
         end)
     else
         local coinContainer = findCoinContainer()
-        if not coinContainer then return end
+        if not coinContainer then
+            print("CoinContainer not found")
+            return
+        end
         local coins = coinContainer:GetChildren()
-        if #coins == 0 then return end
+        if #coins == 0 then
+            print("No coins found")
+            return
+        end
         local randomCoin = coins[math.random(1, #coins)]
-        
+        print("Teleporting to random coin")
         isTeleporting = true
         local tween = teleportToCoin(randomCoin)
         tween.Completed:Connect(function()
             isTeleporting = false
-            teleportToNearbyOrRandomCoin()
+            teleportToNearbyOrRandomCoin() -- Immediately move to the next coin
         end)
     end
 end
@@ -95,7 +114,7 @@ end
 -- Connect to current and future characters
 player.CharacterAdded:Connect(onCharacterAdded)
 
--- Start teleportation loop
+-- Start the continuous teleportation loop
 RunService.Heartbeat:Connect(function()
     if teleportEnabled and character and character:FindFirstChild("HumanoidRootPart") then
         teleportToNearbyOrRandomCoin()
@@ -127,71 +146,81 @@ function GodMode()
     end
 end
 
-game:GetService("StarterGui"):SetCore("SendNotification",{
-	Title = "WARNING", -- Required
-	Text = "PRESS P TO TOGGLE UI", -- Required
-	Icon = "rbxassetid://1234567890" -- Optional
+local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nebula-Softworks/Luna-Interface-Suite/refs/heads/main/source.lua", true))()
+local Window = Luna:CreateWindow({
+	Name = "Ryxzen - MM2",
+	Subtitle = nil,
+	LogoID = "82795327169782",
+	LoadingEnabled = true,
+	LoadingTitle = "Loading...",
+	LoadingSubtitle = "by Skibidi50-lol",
+
+	ConfigSettings = {
+		RootFolder = nil,
+		ConfigFolder = "Big Hub"
+	},
+
+	KeySystem = false
 })
 
+local mainTab = Window:CreateTab({
+	Name = "Main",
+	Icon = "view_in_ar",
+	ImageSource = "Material",
+	ShowTitle = true
+})
 
-local window = library:Window("Ryxzen - MM2 | MAIN")
-
-window:Toggle("Auto Farm Coin", false, function(bool)
-    teleportEnabled = bool
-    teleportEnabled = bool
-end)
-
-window:Toggle("God Mode (Reset After Round)", false, function(bool)
-    godModeEnabled = bool
-    if godModeEnabled then
-        GodMode()
+local Toggle = mainTab:CreateToggle({
+	Name = "Coin Farm",
+	CurrentValue = false,
+    Callback = function(Value)
+       teleportEnabled = Value
     end
-end)
+}, "CoinToggle")
 
-local window2 = library:Window("Ryxzen - MM2 | VISUAL")
+local Toggle = mainTab:CreateToggle({
+	Name = "God Mode(Reset After Round)",
+	CurrentValue = false,
+    Callback = function(Value)
+        godModeEnabled = value
+        if godModeEnabled then
+            GodMode()
+        end
+    end
+}, "GodToggle")
 
-window2:Toggle("Enabled ESP", false, function(bool)
-    ESP.Enabled = bool
-end)
+local plrTab = Window:CreateTab({
+	Name = "Player",
+	Icon = "view_in_ar",
+	ImageSource = "Material",
+	ShowTitle = true
+})
 
-window2:Toggle("BOX", false, function(bool)
-    ESP.ShowBox = bool
-	ESP.BoxType = "Corner Box Esp";
-end)
+-- Infinite Jump Toggle
+local Toggle = plrTab:CreateToggle({
+	Name = "Infinite Jump",
+	CurrentValue = false,
+    Callback = function(Value)
+       InfiniteJumpEnabled = Value
+    end
+}, "JumpToggle")
 
-window2:Toggle("NAME", false, function(bool)
-    ESP.ShowName = bool
-end)
+local Slider = plrTab:CreateSlider({
+	Name = "WalkSpeed",
+	Range = {16, 200}, 
+	Increment = 1, 
+	CurrentValue = 16, 
+    Callback = function(Value)
+       game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
+}, "SpeedSlider")
 
-window2:Toggle("TRACER", false, function(bool)
-    ESP.ShowTracer = bool
-end)
-
-local window3 = library:Window("Ryxzen - MM2 | PLAYER")
-window3:Box("Walkspeed", function(text, focuslost)
-   if focuslost then
-   game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = text
-   end
-end)
-
-window3:Box("JumpPower", function(text, focuslost)
-   if focuslost then
-   game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = text
-   end
-end)
-
-local window4 = library:Window("Ryxzen - MM2 | AIM")
-window4:Button("TriggerBot", function()
-   game.StarterGui:SetCore("SendNotification", {Title="TriggerBot"; Text="Press t to enable or disable triggerbot"; Duration=5;})
-   getgenv().triggerbot.load()
-end)
-
-window4:Slider("TriggerBot Delay",0.1,2,1, function(value)
-   getgenv().triggerbot.Settings.clickDelay = value
-end)
-
-window:Button("Rejoin", function()
-    TeleportService:Teleport(game.PlaceId, player)
-end)
-
-library:Keybind("P")
+local Slider = plrTab:CreateSlider({
+	Name = "JumpPower",
+	Range = {50, 500}, 
+	Increment = 1, 
+	CurrentValue = 50, 
+    Callback = function(Value)
+       game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+    end
+}, "JumpSlider")
