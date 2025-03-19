@@ -1,2 +1,4 @@
-# Rivals
-skdaslkdja;slkd;jas
+#Scripts
+```lua
+
+```
